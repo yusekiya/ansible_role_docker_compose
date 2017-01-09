@@ -1,0 +1,25 @@
+---
+- block:
+  - name: Install requirements
+    apt:
+      name: apt-transport-https
+      state: present
+
+  - name: Add the new GPG key
+    apt_key:
+      id: '37BBEE3F7AD95B3F'
+      keyserver: 'keyserver.ubuntu.com'
+
+  - name: Add apt repository
+    apt_repository:
+      repo: 'deb https://packagecloud.io/Hypriot/Schatzkiste/debian/ jessie main'
+      filename: 'hypriot'
+      update_cache: yes
+
+  - name: Install docker-compose
+    apt:
+      name: docker-compose
+      state: latest
+      update_cache: yes
+
+  when: ansible_lsb.id == 'Raspbian'
