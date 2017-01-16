@@ -1,2 +1,10 @@
 ---
 - include: '{{ansible_architecture}}.yml'
+
+- name: Install command line completion for bash
+  get_url:
+    url: https://raw.githubusercontent.com/docker/compose/{{docker_compose_version}}/contrib/completion/bash/docker-compose
+    dest: /etc/bash_completion.d/docker-compose
+    mode: 0644
+
+
