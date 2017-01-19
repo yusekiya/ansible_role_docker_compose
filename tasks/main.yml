@@ -4,7 +4,17 @@
 - name: Install command line completion for bash
   get_url:
     url: https://raw.githubusercontent.com/docker/compose/{{docker_compose_version}}/contrib/completion/bash/docker-compose
+    dest: /etc/bash_completion.d/docker-compose-{{docker_compose_version}}
+    mode: 0644
+  register: docker_compose_bash_completion
+
+- name: Create symbolic link to bash completion file
+  file:
+    state: link
+    src: /etc/bash_completion.d/docker-compose-{{docker_compose_version}}
     dest: /etc/bash_completion.d/docker-compose
     mode: 0644
+    force: yes
+  when: docker_compose_bash_completion | changed
 
 
