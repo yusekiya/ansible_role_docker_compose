@@ -18,7 +18,7 @@ Role Variables
 ``` yaml
 # Version of docker-compose
 # This variable affects install on x86_64 architecture for now
-docker_compose_version: 1.9.0
+docker_compose_version: 1.11.2
 ```
 
 Dependencies
