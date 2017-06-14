@@ -1,25 +1,37 @@
 ---
 - block:
-  - name: Install requirements
-    apt:
-      name: apt-transport-https
-      state: present
+  - name: Create directory to build packages
+    file:
+      path: '~/repos'
+      state: directory
 
-  - name: Add the new GPG key
-    apt_key:
-      id: '37BBEE3F7AD95B3F'
-      keyserver: 'keyserver.ubuntu.com'
+  - name: Clone git repo
+    git:
+      repo: 'https://github.com/docker/compose.git'
+      dest: '~/repos/docker_compose'
+      version: '{{docker_compose_version}}'
+    register: ret_clone_docker_compose
 
-  - name: Add apt repository
-    apt_repository:
-      repo: 'deb https://packagecloud.io/Hypriot/Schatzkiste/debian/ jessie main'
-      filename: 'hypriot'
-      update_cache: yes
+  - name: Build docker image
+    command: 'docker build -t docker-compose:armhf -f Dockerfile.armhf .'
+    args:
+      chdir: '~/repos/docker_compose/'
+    when: ret_clone_docker_compose | changed
 
-  - name: Install docker-compose
-    apt:
-      name: docker-compose
-      state: latest
-      update_cache: yes
+  - name: Build docker-compose executable
+    shell: 'docker run --rm --entrypoint="script/build/linux-entrypoint" -v $(pwd)/dist:/code/dist -v $(pwd)/.git:/code/.git "docker-compose:armhf"'
+    args:
+      chdir: '~/repos/docker_compose/'
+    when: ret_clone_docker_compose | changed
+
+  - name: Create symlink in executable path
+    file:
+      src: '~/repos/docker_compose/dist/docker-compose-Linux-armv7l'
+      dest: '/usr/local/bin/docker-compose'
+      owner: root
+      group: root
+      mode: 0755
+      state: link
+    when: ret_clone_docker_compose | changed
 
   when: ansible_lsb.id == 'Raspbian'
