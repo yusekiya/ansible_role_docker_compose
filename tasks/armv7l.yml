@@ -1,28 +1,26 @@
 ---
+- name: Create directory to build packages
+  file:
+    path: '~/repos'
+    state: directory
+
+- name: Clone git repo
+  git:
+    repo: 'https://github.com/docker/compose.git'
+    dest: '~/repos/docker_compose'
+    version: '{{docker_compose_version}}'
+  register: ret_clone_docker_compose
+
 - block:
-  - name: Create directory to build packages
-    file:
-      path: '~/repos'
-      state: directory
-
-  - name: Clone git repo
-    git:
-      repo: 'https://github.com/docker/compose.git'
-      dest: '~/repos/docker_compose'
-      version: '{{docker_compose_version}}'
-    register: ret_clone_docker_compose
-
   - name: Build docker image
     command: 'docker build -t docker-compose:armhf -f Dockerfile.armhf .'
     args:
       chdir: '~/repos/docker_compose/'
-    when: ret_clone_docker_compose | changed
 
   - name: Build docker-compose executable
     shell: 'docker run --rm --entrypoint="script/build/linux-entrypoint" -v $(pwd)/dist:/code/dist -v $(pwd)/.git:/code/.git "docker-compose:armhf"'
     args:
       chdir: '~/repos/docker_compose/'
-    when: ret_clone_docker_compose | changed
 
   - name: Create symlink in executable path
     file:
@@ -32,6 +30,4 @@
       group: root
       mode: 0755
       state: link
-    when: ret_clone_docker_compose | changed
-
-  when: ansible_lsb.id == 'Raspbian'
+  when: ret_clone_docker_compose | changed
