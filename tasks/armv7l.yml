@@ -13,14 +13,21 @@
 
 - block:
   - name: Build docker image
-    command: 'docker build -t docker-compose:armhf -f Dockerfile.armhf .'
-    args:
-      chdir: '~/repos/docker_compose/'
+    docker_image:
+      name: 'docker-compose'
+      tag: 'armhf'
+      dockerfile: '~/repos/docker_compose/Dockerfile.armhf'
+      force: yes
 
   - name: Build docker-compose executable
-    shell: 'docker run --rm --entrypoint="script/build/linux-entrypoint" -v $(pwd)/dist:/code/dist -v $(pwd)/.git:/code/.git "docker-compose:armhf"'
-    args:
-      chdir: '~/repos/docker_compose/'
+    docker_container:
+      name: 'docker-compose'
+      image: 'docker-compose:armhf'
+      entrypoint: 'script/build/linux-entrypoint'
+      volumes:
+        - '~/repos/docker_compose/dist:/code/dist'
+        - '~/repos/docker_compose/.git:/code/.git'
+      auto_remove: yes
 
   - name: Create symlink in executable path
     file:
