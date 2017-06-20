@@ -11,6 +11,11 @@
     version: '{{docker_compose_version}}'
   register: ret_clone_docker_compose
 
+- name: Install docker-py
+  pip:
+    name: 'docker-py'
+    state: present
+
 - block:
   - name: Build docker image
     docker_image:
