@@ -34,7 +34,6 @@
       volumes:
         - '~/repos/docker_compose/dist:/code/dist'
         - '~/repos/docker_compose/.git:/code/.git'
-      auto_remove: yes
 
   - name: Create symlink in executable path
     file:
