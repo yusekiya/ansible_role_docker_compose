@@ -19,9 +19,11 @@
 - block:
   - name: Build docker image
     docker_image:
+      state: present
       name: 'docker-compose'
       tag: 'armhf'
-      dockerfile: '~/repos/docker_compose/Dockerfile.armhf'
+      path: '~/repos/docker_compose'
+      dockerfile: 'Dockerfile.armhf'
       force: yes
 
   - name: Build docker-compose executable
