@@ -26,14 +26,18 @@
       dockerfile: 'Dockerfile.armhf'
       force: yes
 
+  # TODO: This task doesn't mount host directories properly.
+  # - name: Build docker-compose executable
+    # docker_container:
+      # name: 'docker-compose'
+      # image: 'docker-compose:armhf'
+      # entrypoint: 'script/build/linux-entrypoint'
+      # volumes:
+        # - '~/repos/docker_compose/dist:/code/dist'
+        # - '~/repos/docker_compose/.git:/code/.git'
+  # This is just a workaround for the above issue
   - name: Build docker-compose executable
-    docker_container:
-      name: 'docker-compose'
-      image: 'docker-compose:armhf'
-      entrypoint: 'script/build/linux-entrypoint'
-      volumes:
-        - '~/repos/docker_compose/dist:/code/dist'
-        - '~/repos/docker_compose/.git:/code/.git'
+    shell: 'docker run --rm --entrypoint="script/build/linux-entrypoint" -v ~/repos/docker_compose/dist:/code/dist -v ~/repos/docker_compose/.git:/code/.git "docker-compose:armhf"'
 
   - name: Create symlink in executable path
     file:
