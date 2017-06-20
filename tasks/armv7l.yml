@@ -13,7 +13,7 @@
 
 - name: Install docker-py
   pip:
-    name: 'docker-py'
+    name: 'docker'
     state: present
 
 - block:
