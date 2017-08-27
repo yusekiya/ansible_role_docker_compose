@@ -1,0 +1,53 @@
+---
+- name: Create directory to build packages
+  file:
+    path: '~/repos'
+    state: directory
+
+- name: Clone git repo
+  git:
+    repo: 'https://github.com/docker/compose.git'
+    dest: '~/repos/docker_compose'
+    version: '{{docker_compose_version}}'
+  register: ret_clone_docker_compose
+
+- name: Install docker-py
+  pip:
+    name: 'docker'
+    state: present
+
+- block:
+  - name: Build docker image
+    docker_image:
+      state: present
+      name: 'docker-compose'
+      tag: 'armhf'
+      path: '~/repos/docker_compose'
+      dockerfile: 'Dockerfile.armhf'
+      force: yes
+
+  # TODO: This task doesn't mount host directories properly.
+  # - name: Build docker-compose executable
+    # docker_container:
+      # name: 'docker-compose'
+      # image: 'docker-compose:armhf'
+      # entrypoint: 'script/build/linux-entrypoint'
+      # volumes:
+        # - '~/repos/docker_compose/dist:/code/dist'
+        # - '~/repos/docker_compose/.git:/code/.git'
+  # This is just a workaround for the above issue
+  - name: Build docker-compose executable
+    shell: 'docker run --rm --entrypoint="script/build/linux-entrypoint" -v ~/repos/docker_compose/dist:/code/dist -v ~/repos/docker_compose/.git:/code/.git "docker-compose:armhf"'
+
+  - name: Copy executable
+    command: 'cp -f ~/repos/docker_compose/dist/docker-compose-Linux-armv6l /usr/local/bin/docker-compose'
+
+  - name: Modify executable
+    file:
+      name: '/usr/local/bin/docker-compose'
+      owner: root
+      group: root
+      mode: 0755
+      state: file
+
+  when: ret_clone_docker_compose | changed
