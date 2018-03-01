@@ -11,7 +11,7 @@
 - name: Create symbolic link to docker-compose binary
   file:
     state: link
-    src: /usr/local/bin/docker-compose-{{docker_compose_version}}
+    src: docker-compose-{{docker_compose_version}}
     dest: /usr/local/bin/docker-compose
     force: yes
     mode: 0755
