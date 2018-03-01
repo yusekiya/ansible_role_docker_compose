@@ -1,5 +1,5 @@
 ---
-- include: '{{ansible_architecture}}.yml'
+- include_tasks: '{{ansible_architecture}}.yml'
 
 - name: Check version of docker-compose in use
   command: docker-compose version --short
